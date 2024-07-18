@@ -1,5 +1,6 @@
 import * as React from "react";
 import { useNavigate, useLocation } from "react-router-dom";
+import { useState } from "react";
 import AppBar from "@mui/material/AppBar";
 import Box from "@mui/material/Box";
 import Toolbar from "@mui/material/Toolbar";
@@ -18,9 +19,9 @@ import SignupForm from './SignUpForm';
 const pages = ["Menu", "Plans", "Blog"];
 
 function NavBar() {
-  const [mobileOpen, setMobileOpen] = React.useState(false);
-  const [isLoginOpen, setIsLoginOpen] = React.useState(false);
-  const [isSignupOpen, setIsSignupOpen] = React.useState(false);
+  const [mobileOpen, setMobileOpen] = useState(false);
+  const [isFormOpen, setIsFormOpen] = useState(false);
+  const [currentForm, setCurrentForm] = useState(null);
 
   const navigate = useNavigate();
   const location = useLocation();
@@ -32,12 +33,25 @@ function NavBar() {
   const handleNavigation = (page) => {
     navigate(`/${page.toLowerCase()}`);
     if (mobileOpen) {
-      handleDrawerToggle(); // Close the drawer if a page is clicked
+      handleDrawerToggle();
     }
   };
 
   const isCurrentPage = (page) => {
     return location.pathname.includes(page.toLowerCase());
+  };
+
+  const switchToSignup = () => {
+    setCurrentForm('signup');
+  };
+
+  const switchToLogin = () => {
+    setCurrentForm('login');
+  };
+
+  const handleCloseForms = () => {
+    setIsFormOpen(false);
+    setCurrentForm(null);
   };
 
   const drawer = (
@@ -74,10 +88,11 @@ function NavBar() {
             }}
             onClick={() => {
               handleDrawerToggle();
-              setIsLoginOpen(true);
+              setIsFormOpen(true);
+              setCurrentForm('login');
             }}
           >
-            Log In
+            Login
           </Button>
         </ListItem>
         <ListItem button>
@@ -95,7 +110,8 @@ function NavBar() {
             }}
             onClick={() => {
               handleDrawerToggle();
-              setIsSignupOpen(true);
+              setIsFormOpen(true);
+              setCurrentForm('signup');
             }}
           >
             Sign Up
@@ -206,9 +222,12 @@ function NavBar() {
                     borderColor: "#e44c14",
                   },
                 }}
-                onClick={() => setIsLoginOpen(true)}
+                onClick={() => {
+                  setIsFormOpen(true);
+                  setCurrentForm('login');
+                }}
               >
-                Log In
+                Login
               </Button>
               <Button
                 variant="contained"
@@ -222,7 +241,10 @@ function NavBar() {
                   minWidth: "100px",
                   "&:hover": { backgroundColor: "#e44c14" },
                 }}
-                onClick={() => setIsSignupOpen(true)}
+                onClick={() => {
+                  setIsFormOpen(true);
+                  setCurrentForm('signup');
+                }}
               >
                 Sign Up
               </Button>
@@ -231,8 +253,18 @@ function NavBar() {
         </Container>
       </AppBar>
 
-      {isLoginOpen && <LoginForm onClose={() => setIsLoginOpen(false)} />}
-      {isSignupOpen && <SignupForm onClose={() => setIsSignupOpen(false)} />}
+      {isFormOpen && currentForm === 'login' && (
+        <LoginForm 
+          onClose={handleCloseForms} 
+          switchToSignup={switchToSignup} 
+        />
+      )}
+      {isFormOpen && currentForm === 'signup' && (
+        <SignupForm 
+          onClose={handleCloseForms} 
+          switchToLogin={switchToLogin} 
+        />
+      )}
     </div>
   );
 }
