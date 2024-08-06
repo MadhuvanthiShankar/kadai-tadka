@@ -1,5 +1,6 @@
 import React from "react";
 import { useForm } from "react-hook-form";
+import axios from 'axios';
 import { yupResolver } from "@hookform/resolvers/yup";
 import * as yup from "yup";
 
@@ -33,10 +34,17 @@ const LoginForm = ({ onClose, switchToSignup }) => {
     resolver: yupResolver(schema),
   });
 
-  const onSubmit = (data) => {
-    console.log(data);
-    onClose();
-  };
+  const onSubmit = async (data) => {
+    try {
+      const response = await axios.post('http://localhost:5000/api/user/login', data);
+      alert("Login Successful");
+      console.log(response.data);
+      onClose();
+    } catch (error) {
+      alert(error.response.data.message);
+      console.error(error.response.data);
+    }
+  }
 
   return (
     <div className="fixed inset-0 bg-gray-900 bg-opacity-50 flex justify-center items-center z-50">

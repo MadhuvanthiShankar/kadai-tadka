@@ -1,5 +1,6 @@
 import React from "react";
 import { useForm } from "react-hook-form";
+import axios from 'axios';
 import { yupResolver } from "@hookform/resolvers/yup";
 import * as yup from "yup";
 
@@ -9,12 +10,6 @@ const schema = yup.object().shape({
     .required("Name is required")
     .matches(/^[A-Za-z\s]+$/, "Name must contain only letters")
     .max(50, "Name must be at most 50 characters"),
-  phonenumber: yup
-    .string()
-    .required("Phone number is required")
-    .matches(/^[0-9]+$/, "Phone number must contain only numbers")
-    .min(10, "Phone number must be at least 10 digits")
-    .max(15, "Phone number must be at most 15 digits"),
   email: yup
     .string()
     .required("Email is required")
@@ -44,9 +39,16 @@ const SignupForm = ({ onClose, switchToLogin }) => {
     resolver: yupResolver(schema),
   });
 
-  const onSubmit = (data) => {
-    console.log(data);
-    onClose();
+  const onSubmit = async (data) => {
+    try {
+      const response = await axios.post('http://localhost:5000/api/user/signup', data);
+      alert("Signup successful!");
+      console.log(response.data);
+      onClose();
+    } catch (error) {
+      alert(error.response.data.message)
+      console.error(error.response.data);
+    }
   };
 
   return (
@@ -71,25 +73,7 @@ const SignupForm = ({ onClose, switchToLogin }) => {
               <p className="text-red-500 text-sm mt-1">{errors.name.message}</p>
             )}
           </div>
-          <div className="mb-4">
-            <label
-              className="block text-gray-700 font-bold mb-2"
-              htmlFor="phonenumber"
-            >
-              Phone Number
-            </label>
-            <input
-              className="w-full p-2 border border-gray-300 rounded"
-              type="text"
-              id="phonenumber"
-              {...register("phonenumber")}
-            />
-            {errors.phonenumber && (
-              <p className="text-red-500 text-sm mt-1">
-                {errors.phonenumber.message}
-              </p>
-            )}
-          </div>
+          
           <div className="mb-4">
             <label
               className="block text-gray-700 font-bold mb-2"
